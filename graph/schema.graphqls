@@ -1,0 +1,84 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+# Define a custom scalar named MyID
+
+type Pokemon {
+  id: ID!
+  name: String!
+  description: String
+  typeID: ID!
+  categoryID: ID!
+  abilityID: ID!
+  type: PokemonType!
+  category: PokemonCategory!
+  ability: PokemonAbility!
+}
+
+type PokemonType {
+  id: ID!
+  name: String!
+}
+
+type PokemonCategory {
+  id: ID!
+  name: String!
+}
+
+type PokemonAbility {
+  id: ID!
+  name: String!
+}
+
+type Query {
+  listPokemons: [Pokemon!]!
+  listType: [PokemonType!]!
+  listCategory: [PokemonCategory!]!
+  listAbility: [PokemonAbility!]!
+  findPokemonById(id: ID!): Pokemon
+  findPokemonByName(name: String!): [Pokemon!]!
+}
+
+input newType {
+  name: String!
+}
+
+input newAbility {
+  name: String!
+}
+
+input newCategory {
+  name: String!
+}
+
+input createPokemon {
+  name: String!
+  description: String
+  typeID: ID!
+  categoryID: ID!
+  abilityID: ID!
+}
+
+input updatePokemon {
+  id: ID!
+  name: String!
+  description: String
+  typeID: ID!
+  categoryID: ID!
+  abilityID: ID!
+}
+
+type Mutation {
+  createPokemon(input: createPokemon!): Pokemon
+
+  updatePokemon(input: updatePokemon!): Pokemon
+
+  deletePokemon(id: ID!): Boolean
+
+  createType(input: newType!): PokemonType!
+
+  createAbility(input: newAbility!): PokemonAbility!
+
+  createCategory(input: newCategory!): PokemonCategory!
+}
