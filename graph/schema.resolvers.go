@@ -8,199 +8,76 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/TanyaEIEI/pokedex/database"
 	"github.com/TanyaEIEI/pokedex/graph/model"
 )
 
 // CreatePokemon is the resolver for the createPokemon field.
-func (r *mutationResolver) CreatePokemon(ctx context.Context, input model.CreatePokemon) (*model.Pokemon, error) {
-	context := GetContext(ctx)
-	var pokemonList []*model.Pokemon
-	err := context.Database.Find(&pokemonList).Error
+func (r *mutationResolver) CreatePokemon(ctx context.Context, input model.PokemonInput) (*model.Pokemon, error) {
+	newpokemon, err := r.Pokedex.CreatePokemon(ctx, database.Pokemon{
+		Name:        *input.Name,
+		Description: *input.Description,
+		Category:    *input.Category,
+		Abilities:   *input.Abilities,
+		Type:        *input.Type,
+	})
 	if err != nil {
 		return nil, err
 	}
-	currentId, errConvertId := getCurrentId(pokemonList)
-	if errConvertId != nil {
-		return nil, err
-	}
-	newPokenmon := &model.Pokemon{
-		ID:          strconv.Itoa(currentId + 1),
-		Name:        input.Name,
-		Description: input.Description,
-		CategoryID:  input.CategoryID,
-		AbilityID:   input.AbilityID,
-		TypeID:      input.TypeID,
-	}
-	err2 := context.Database.Create(&newPokenmon).Error
-	if err2 != nil {
-		return nil, err2
-	}
-	return r.Query().FindPokemonByID(ctx, newPokenmon.ID)
+
+	var responsePokemon model.Pokemon
+	responsePokemon.ID = strconv.Itoa(newpokemon.ID)
+	responsePokemon.Name = newpokemon.Name
+	responsePokemon.Category = newpokemon.Category
+	responsePokemon.Description = newpokemon.Description
+	responsePokemon.Abilities = &newpokemon.Abilities
+	responsePokemon.Type = &newpokemon.Type
+
+	return &responsePokemon, nil
 }
 
 // UpdatePokemon is the resolver for the updatePokemon field.
-func (r *mutationResolver) UpdatePokemon(ctx context.Context, input model.UpdatePokemon) (*model.Pokemon, error) {
-	context := GetContext(ctx)
-	pokemon := &model.Pokemon{
+func (r *mutationResolver) UpdatePokemon(ctx context.Context, input model.PokemonInput) (*model.Pokemon, error) {
+	updatePokemon, err := r.Pokedex.UpdatePokemon(ctx, database.UpdatePokemonInput{
 		ID:          input.ID,
 		Name:        input.Name,
 		Description: input.Description,
-		TypeID:      input.TypeID,
-		CategoryID:  input.CategoryID,
-		AbilityID:   input.AbilityID,
-	}
-	err := context.Database.Save(&pokemon).Error
+		Category:    input.Category,
+		Abilities:   input.Abilities,
+		Type:        input.Type,
+	})
 	if err != nil {
 		return nil, err
 	}
-	return pokemon, err
+	var responsePokemon model.Pokemon
+	responsePokemon.ID = strconv.Itoa(updatePokemon.ID)
+	responsePokemon.Name = updatePokemon.Name
+	responsePokemon.Category = updatePokemon.Category
+	responsePokemon.Description = updatePokemon.Description
+	responsePokemon.Abilities = &updatePokemon.Abilities
+	responsePokemon.Type = &updatePokemon.Type
+
+	return &responsePokemon, nil
 }
 
 // DeletePokemon is the resolver for the deletePokemon field.
-func (r *mutationResolver) DeletePokemon(ctx context.Context, id string) (*bool, error) {
-	context := GetContext(ctx)
-	var pokemon *model.Pokemon
-	err := context.Database.Where("id = ?", id).Delete(&pokemon).Error
-	if err != nil {
-		return nil, err
-	}
-	result := true
-	return &result, nil
+func (r *mutationResolver) DeletePokemon(ctx context.Context, id string) (bool, error) {
+	return r.Pokedex.DeletePokemon(ctx, id)
 }
 
-// CreateType is the resolver for the createType field.
-func (r *mutationResolver) CreateType(ctx context.Context, input model.NewType) (*model.PokemonType, error) {
-	context := GetContext(ctx)
-	var typeList []*model.PokemonType
-	err := context.Database.Find(&typeList).Error
-	if err != nil {
-		return nil, err
-	}
-	currentId, errConvertId := getCurrentId(typeList)
-	if errConvertId != nil {
-		return nil, err
-	}
-	newType := &model.PokemonType{
-		ID:   strconv.Itoa(currentId + 1),
-		Name: input.Name,
-	}
-	err2 := context.Database.Create(&newType).Error
-	if err2 != nil {
-		return nil, err2
-	}
-	return newType, nil
+// SearchPokemonByID is the resolver for the searchPokemonById field.
+func (r *queryResolver) SearchPokemonByID(ctx context.Context, id string) (*model.Pokemon, error) {
+	return r.Pokedex.SearchByID(ctx, id)
 }
 
-// CreateAbility is the resolver for the createAbility field.
-func (r *mutationResolver) CreateAbility(ctx context.Context, input model.NewAbility) (*model.PokemonAbility, error) {
-	context := GetContext(ctx)
-	var abilityList []*model.PokemonAbility
-	err := context.Database.Find(&abilityList).Error
-	if err != nil {
-		return nil, err
-	}
-	currentId, errConvertId := getCurrentId(abilityList)
-	if errConvertId != nil {
-		return nil, err
-	}
-	newAbility := &model.PokemonAbility{
-		ID:   strconv.Itoa(currentId + 1),
-		Name: input.Name,
-	}
-	err2 := context.Database.Create(&newAbility).Error
-	if err2 != nil {
-		return nil, err2
-	}
-	return newAbility, nil
+// SearchPokemonByName is the resolver for the searchPokemonByName field.
+func (r *queryResolver) SearchPokemonByName(ctx context.Context, name string) ([]*model.Pokemon, error) {
+	return r.Pokedex.SearchByName(ctx, name)
 }
 
-// CreateCategory is the resolver for the createCategory field.
-func (r *mutationResolver) CreateCategory(ctx context.Context, input model.NewCategory) (*model.PokemonCategory, error) {
-	context := GetContext(ctx)
-	var categoryList []*model.PokemonCategory
-	err := context.Database.Find(&categoryList).Error
-	if err != nil {
-		return nil, err
-	}
-	currentId, errConvertId := getCurrentId(categoryList)
-	if errConvertId != nil {
-		return nil, err
-	}
-	newCategory := &model.PokemonCategory{
-		ID:   strconv.Itoa(currentId + 1),
-		Name: input.Name,
-	}
-	err2 := context.Database.Create(&newCategory).Error
-	if err2 != nil {
-		return nil, err2
-	}
-	return newCategory, nil
-}
-
-// ListPokemons is the resolver for the listPokemons field.
-func (r *queryResolver) ListPokemons(ctx context.Context) ([]*model.Pokemon, error) {
-	context := GetContext(ctx)
-	var pokemonList []*model.Pokemon
-	err := context.Database.Preload("Type").Preload("Category").Preload("Ability").Find(&pokemonList).Error
-	if err != nil {
-		return nil, err
-	}
-	return pokemonList, nil
-}
-
-// ListType is the resolver for the listType field.
-func (r *queryResolver) ListType(ctx context.Context) ([]*model.PokemonType, error) {
-	context := GetContext(ctx)
-	var typeList []*model.PokemonType
-	err := context.Database.Find(&typeList).Error
-	if err != nil {
-		return nil, err
-	}
-	return typeList, nil
-}
-
-// ListCategory is the resolver for the listCategory field.
-func (r *queryResolver) ListCategory(ctx context.Context) ([]*model.PokemonCategory, error) {
-	context := GetContext(ctx)
-	var categoryList []*model.PokemonCategory
-	err := context.Database.Find(&categoryList).Error
-	if err != nil {
-		return nil, err
-	}
-	return categoryList, nil
-}
-
-// ListAbility is the resolver for the listAbility field.
-func (r *queryResolver) ListAbility(ctx context.Context) ([]*model.PokemonAbility, error) {
-	context := GetContext(ctx)
-	var abilityList []*model.PokemonAbility
-	err := context.Database.Find(&abilityList).Error
-	if err != nil {
-		return nil, err
-	}
-	return abilityList, nil
-}
-
-// FindPokemonByID is the resolver for the findPokemonById field.
-func (r *queryResolver) FindPokemonByID(ctx context.Context, id string) (*model.Pokemon, error) {
-	context := GetContext(ctx)
-	var pokemon *model.Pokemon
-	err := context.Database.Preload("Type").Preload("Category").Preload("Ability").Where("id = ?", id).Find(&pokemon).Error //if cannot find pokemon return null % show error data not found
-	if err != nil {
-		return nil, err
-	}
-	return pokemon, nil
-}
-
-// FindPokemonByName is the resolver for the findPokemonByName field.
-func (r *queryResolver) FindPokemonByName(ctx context.Context, name string) ([]*model.Pokemon, error) {
-	context := GetContext(ctx)
-	var pokemon []*model.Pokemon
-	err := context.Database.Preload("Type").Preload("Category").Preload("Ability").Where("name LIKE ?", "%"+name+"%").Find(&pokemon).Error
-	if err != nil {
-		return nil, err
-	}
-	return pokemon, nil
+// Pokemons is the resolver for the pokemons field.
+func (r *queryResolver) Pokemons(ctx context.Context) ([]*model.Pokemon, error) {
+	return r.Pokedex.ListPokemon(ctx)
 }
 
 // Mutation returns MutationResolver implementation.

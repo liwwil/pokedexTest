@@ -3,35 +3,38 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/TanyaEIEI/pokedex/common"
+	"github.com/TanyaEIEI/pokedex/database"
 	"github.com/TanyaEIEI/pokedex/graph"
 	"github.com/go-chi/chi"
 )
 
+const defaultPort = "19000"
+
 func main() {
-	var err error
-	port := "9000"
-	if err != nil {
-		log.Fatal(err)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = defaultPort
 	}
-	db, err := common.InitDb()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	customCtx := graph.CustomContext{
-		Database: db,
-	}
-
+	db, _ := database.InitDb()
 	r := chi.NewRouter()
-
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	srv := handler.NewDefaultServer(
+		graph.NewExecutableSchema(
+			graph.Config{
+				Resolvers: &graph.Resolver{
+					Pokedex: &database.Pokebase{
+						Db: db,
+					},
+				},
+			},
+		),
+	)
 
 	r.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	r.Handle("/query", graph.CreateContext(&customCtx, srv))
+	r.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
