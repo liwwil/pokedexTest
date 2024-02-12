@@ -83,17 +83,15 @@ func (pkb *Database) DeletePokemon(ctx context.Context, id string) (bool, error)
 		return false, err
 	}
 
-	// Return success
-	success := true
-	return success, nil
+	return true, nil
 }
 
 func (pkb *Database) SearchByID(ctx context.Context, id string) (*model.Pokemon, error) {
 	var pokemonData *model.Pokemon
 
 	if err := pkb.Db.First(&pokemonData, id).Error; err != nil {
-		fmt.Printf("Failed to find Pokemon by using : %v", err)
-		return nil, fmt.Errorf("failed to find Pokemon by using id")
+		fmt.Printf("Failed to find this pokemon's id : %v", err)
+		return nil, fmt.Errorf("Failed to find this pokemon's id ")
 	}
 
 	return pokemonData, nil
@@ -102,8 +100,8 @@ func (pkb *Database) SearchByID(ctx context.Context, id string) (*model.Pokemon,
 func (pkb Database) SearchByName(ctx context.Context, name string) ([]*model.Pokemon, error) {
 	var pokemonList []*model.Pokemon
 	if err := pkb.Db.Where("name LIKE ?", "%"+name+"%").Find(&pokemonList).Error; err != nil {
-		fmt.Printf("Failed to find Pokemon by using : %v", err)
-		return nil, fmt.Errorf("failed to find Pokemon for update")
+		fmt.Printf("failed to find this pokemon's name: %v", err)
+		return nil, fmt.Errorf("failed to find this pokemon's name")
 	}
 	return pokemonList, nil
 }
