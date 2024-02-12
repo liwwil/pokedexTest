@@ -25,7 +25,7 @@ func main() {
 		graph.NewExecutableSchema(
 			graph.Config{
 				Resolvers: &graph.Resolver{
-					Pokedex: &database.Pokebase{
+					Pokedex: &database.Database{
 						Db: db,
 					},
 				},

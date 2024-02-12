@@ -11,12 +11,14 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-type Pokebase struct {
+const dbFile = "testdb1.db"
+
+type Database struct {
 	Db *gorm.DB
 }
 
 func InitDb() (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open("testdb1.db"), &gorm.Config{
+	db, err := gorm.Open(sqlite.Open(dbFile), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
@@ -26,7 +28,7 @@ func InitDb() (*gorm.DB, error) {
 	return db, nil
 }
 
-func (pkb *Pokebase) CreatePokemon(ctx context.Context, input Pokemon) (*Pokemon, error) {
+func (pkb *Database) CreatePokemon(ctx context.Context, input Pokemon) (*Pokemon, error) {
 
 	// Convert input from GraphQL model to database model
 	newCharacter := Pokemon{
@@ -44,7 +46,7 @@ func (pkb *Pokebase) CreatePokemon(ctx context.Context, input Pokemon) (*Pokemon
 	return &newCharacter, nil
 }
 
-func (pkb *Pokebase) ListPokemon(ctx context.Context) ([]*model.Pokemon, error) {
+func (pkb *Database) ListPokemon(ctx context.Context) ([]*model.Pokemon, error) {
 	var pokemonList []*model.Pokemon
 	err := pkb.Db.Find(&pokemonList).Error
 	if err != nil {
@@ -53,7 +55,7 @@ func (pkb *Pokebase) ListPokemon(ctx context.Context) ([]*model.Pokemon, error) 
 	return pokemonList, nil
 }
 
-func (pkb *Pokebase) UpdatePokemon(ctx context.Context, input UpdatePokemonInput) (*Pokemon, error) {
+func (pkb *Database) UpdatePokemon(ctx context.Context, input UpdatePokemonInput) (*Pokemon, error) {
 	var pokemonData *Pokemon
 	if err := pkb.Db.First(&pokemonData, input.ID).Error; err != nil {
 		fmt.Printf("Failed to find Pokemon for update: %v", err)
@@ -76,7 +78,7 @@ func (pkb *Pokebase) UpdatePokemon(ctx context.Context, input UpdatePokemonInput
 	return pokemonData, nil
 }
 
-func (pkb *Pokebase) DeletePokemon(ctx context.Context, id string) (bool, error) {
+func (pkb *Database) DeletePokemon(ctx context.Context, id string) (bool, error) {
 	// Delete the pokemon by ID
 	if err := pkb.Db.Delete(&Pokemon{}, id).Error; err != nil {
 		return false, err
@@ -87,7 +89,7 @@ func (pkb *Pokebase) DeletePokemon(ctx context.Context, id string) (bool, error)
 	return success, nil
 }
 
-func (pkb *Pokebase) SearchByID(ctx context.Context, id string) (*model.Pokemon, error) {
+func (pkb *Database) SearchByID(ctx context.Context, id string) (*model.Pokemon, error) {
 	var pokemonData *model.Pokemon
 
 	if err := pkb.Db.First(&pokemonData, id).Error; err != nil {
@@ -98,7 +100,7 @@ func (pkb *Pokebase) SearchByID(ctx context.Context, id string) (*model.Pokemon,
 	return pokemonData, nil
 }
 
-func (pkb Pokebase) SearchByName(ctx context.Context, name string) ([]*model.Pokemon, error) {
+func (pkb Database) SearchByName(ctx context.Context, name string) ([]*model.Pokemon, error) {
 	var pokemonList []*model.Pokemon
 	if err := pkb.Db.Where("name LIKE ?", "%"+name+"%").Find(&pokemonList).Error; err != nil {
 		fmt.Printf("Failed to find Pokemon by using : %v", err)

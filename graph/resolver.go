@@ -5,5 +5,5 @@ import (
 )
 
 type Resolver struct {
-	Pokedex *database.Pokebase
+	Pokedex *database.Database
 }
