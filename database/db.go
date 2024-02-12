@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/TanyaEIEI/pokedex/graph/model"
 	"gorm.io/driver/sqlite"
@@ -71,7 +70,7 @@ func (pkb *Database) UpdatePokemon(ctx context.Context, input UpdatePokemonInput
 	// Update other fields as needed
 
 	if err := pkb.Db.Save(&pokemonData).Error; err != nil {
-		log.Printf("Failed to update Pokemon: %v", err)
+		fmt.Printf("Failed to update Pokemon: %v", err)
 		return nil, fmt.Errorf("failed to update Pokemon")
 	}
 
@@ -107,4 +106,25 @@ func (pkb Database) SearchByName(ctx context.Context, name string) ([]*model.Pok
 		return nil, fmt.Errorf("failed to find Pokemon for update")
 	}
 	return pokemonList, nil
+}
+
+// Additional Func
+func CheckInput(input model.PokemonInput) error {
+	if input.Name == nil {
+		return fmt.Errorf("name must not be null")
+	}
+	if input.Description == nil {
+		return fmt.Errorf("description must not be null")
+	}
+	if input.Category == nil {
+		return fmt.Errorf("category must not be null")
+	}
+	if input.Abilities == nil {
+		return fmt.Errorf("abilities must not be null")
+	}
+	if input.Type == nil {
+		return fmt.Errorf("type must not be null")
+	}
+
+	return nil
 }

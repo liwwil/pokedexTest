@@ -14,6 +14,10 @@ import (
 
 // CreatePokemon is the resolver for the createPokemon field.
 func (r *mutationResolver) CreatePokemon(ctx context.Context, input model.PokemonInput) (*model.Pokemon, error) {
+	err := database.CheckInput(input)
+	if err != nil {
+		return nil, err
+	}
 	newpokemon, err := r.Pokedex.CreatePokemon(ctx, database.Pokemon{
 		Name:        *input.Name,
 		Description: *input.Description,
@@ -38,6 +42,10 @@ func (r *mutationResolver) CreatePokemon(ctx context.Context, input model.Pokemo
 
 // UpdatePokemon is the resolver for the updatePokemon field.
 func (r *mutationResolver) UpdatePokemon(ctx context.Context, input model.PokemonInput) (*model.Pokemon, error) {
+	err := database.CheckInput(input)
+	if err != nil {
+		return nil, err
+	}
 	updatePokemon, err := r.Pokedex.UpdatePokemon(ctx, database.UpdatePokemonInput{
 		ID:          input.ID,
 		Name:        input.Name,
