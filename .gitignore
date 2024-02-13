@@ -1,2 +1,2 @@
 *.db
-generated.go
+graph/generated.go

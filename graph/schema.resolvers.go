@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/TanyaEIEI/pokedex/database"
@@ -42,9 +43,8 @@ func (r *mutationResolver) CreatePokemon(ctx context.Context, input model.Pokemo
 
 // UpdatePokemon is the resolver for the updatePokemon field.
 func (r *mutationResolver) UpdatePokemon(ctx context.Context, input model.PokemonInput) (*model.Pokemon, error) {
-	err := database.CheckInput(input)
-	if err != nil {
-		return nil, err
+	if input.ID == nil {
+		return nil, fmt.Errorf("id mustn't be null")
 	}
 	updatePokemon, err := r.Pokedex.UpdatePokemon(ctx, database.UpdatePokemonInput{
 		ID:          input.ID,

@@ -60,12 +60,21 @@ func (pkb *Database) UpdatePokemon(ctx context.Context, input UpdatePokemonInput
 		fmt.Printf("Failed to find Pokemon for update: %v", err)
 		return nil, fmt.Errorf("failed to find Pokemon for update")
 	}
-
-	pokemonData.Name = *input.Name
-	pokemonData.Description = *input.Description
-	pokemonData.Category = *input.Category
-	pokemonData.Abilities = *input.Abilities
-	pokemonData.Type = *input.Type
+	if input.Name != nil {
+		pokemonData.Name = *input.Name
+	}
+	if input.Description != nil {
+		pokemonData.Description = *input.Description
+	}
+	if input.Category != nil {
+		pokemonData.Category = *input.Category
+	}
+	if input.Abilities != nil {
+		pokemonData.Abilities = *input.Abilities
+	}
+	if input.Type != nil {
+		pokemonData.Type = *input.Type
+	}
 
 	// Update other fields as needed
 
