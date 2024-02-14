@@ -87,13 +87,19 @@ func (pkb *Database) UpdatePokemon(ctx context.Context, input UpdatePokemonInput
 }
 
 func (pkb *Database) DeletePokemon(ctx context.Context, id string) (bool, error) {
-	// Delete the pokemon by ID
+	// Check if the Pokemon exists
+	var existingPokemon Pokemon
+	if err := pkb.Db.First(&existingPokemon, "id = ?", id).Error; err != nil {
+		return false, err
+	}
+
 	if err := pkb.Db.Delete(&Pokemon{}, id).Error; err != nil {
 		return false, err
 	}
 
 	return true, nil
 }
+
 
 func (pkb *Database) SearchByID(ctx context.Context, id string) (*model.Pokemon, error) {
 	var pokemonData *model.Pokemon
