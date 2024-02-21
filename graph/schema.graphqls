@@ -1,0 +1,29 @@
+type Pokemon {
+  id: ID!
+  name: String!
+  description: String!
+  category: String!
+  abilities: String
+  type: String
+}
+
+type Query {
+  searchPokemonById(id: ID!): Pokemon
+  searchPokemonByName(name: String!): [Pokemon!]!
+  pokemons: [Pokemon!]!
+}
+
+input PokemonInput {
+  id: ID
+  name: String
+  description: String
+  category: String
+  abilities: String
+  type: String
+}
+
+type Mutation {
+  createPokemon(input: PokemonInput!): Pokemon!
+  updatePokemon(input: PokemonInput!): Pokemon!
+  deletePokemon(id: ID!): Boolean!
+}
