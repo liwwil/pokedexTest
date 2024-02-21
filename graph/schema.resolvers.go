@@ -15,6 +15,7 @@ import (
 
 // CreatePokemon is the resolver for the createPokemon field.
 func (r *mutationResolver) CreatePokemon(ctx context.Context, input model.PokemonInput) (*model.Pokemon, error) {
+	fmt.Println(input)
 	err := database.CheckInput(input)
 	if err != nil {
 		return nil, err

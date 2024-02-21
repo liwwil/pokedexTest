@@ -6,9 +6,8 @@ import (
 
 	"github.com/TanyaEIEI/pokedex/graph/model"
 	"gorm.io/driver/postgres"
-    "gorm.io/gorm"
-    "gorm.io/gorm/logger"
-
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 const dbFile = "testdb1.db"
@@ -18,24 +17,23 @@ type Database struct {
 }
 
 func InitDb() (*gorm.DB, error) {
-    dsn := "postgres://pokedex:password@postgres:5432/pokedoc?sslmode=disable"
-    var err error
-    db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-        Logger: logger.Default.LogMode(logger.Silent),
-    })
-    if err != nil {
-        return nil, err
-    }
-    db.AutoMigrate(&Pokemon{})
-    return db, nil
-}
+	dsn := "postgres://liwwil:password@postgres-service:5432/pokedex?sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		return nil, err
+	}
+	db.AutoMigrate(&Pokemon{})
 
+	return db, nil
+}
 func (pkb *Database) CreatePokemon(ctx context.Context, input Pokemon) (*Pokemon, error) {
 
 	// Convert input from GraphQL model to database model
 	newCharacter := Pokemon{
 		Name:        input.Name,
-		Description: input.Description,
+		Description: "Test log tilt data",
 		Category:    input.Category,
 		Abilities:   input.Abilities,
 		Type:        input.Type,
@@ -102,7 +100,6 @@ func (pkb *Database) DeletePokemon(ctx context.Context, id string) (bool, error)
 
 	return true, nil
 }
-
 
 func (pkb *Database) SearchByID(ctx context.Context, id string) (*model.Pokemon, error) {
 	var pokemonData *model.Pokemon
